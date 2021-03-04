@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="app">Hello, World!</h1>
+    </div>
+
+    <script type="text/javascript">
+      var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+
+      socket.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        console.log(data);
+        document.querySelector('#app').innerText = data.message;
+
+      }
+
+    </script>
+  </body>
+</html>
