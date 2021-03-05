@@ -7,7 +7,7 @@
   </head>
   <body>
     <div class="container">
-      <h1 id="app">Hello, World!</h1>
+      <h3 id="dashboard"></h3>
     </div>
 
     <script type="text/javascript">
@@ -16,7 +16,14 @@
       socket.onmessage = function(event) {
         var data = JSON.parse(event.data);
         console.log(data);
-        document.querySelector('#app').innerText = data.message;
+
+        var content = ""
+        var i
+        for (i = 0; i < data.message.length; i++) {
+          content = content + data.message[i].name + " | " + data.message[i].email + "<br>" + "<hr>"
+        }
+
+        document.querySelector('#dashboard').innerHTML = content;
 
       }
 
