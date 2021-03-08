@@ -1,32 +1,97 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
-    <meta charset="utf-8">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style media="screen">
+      #dashboard {
+        padding-top: 60px;
+      }
+      #direction_form {
+        display: none;
+      }
+    </style>
   </head>
-  <body>
+  <body onload="check_for_googlemaps()">
     <div class="container">
-      <h3 id="dashboard"></h3>
+      <h5 id="dashboard"></h5>
     </div>
+
+    <form id="direction_form" action="" method="post">
+        {% csrf_token %}
+        {{ direction_form }}
+    </form>
 
     <script type="text/javascript">
       var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
-
+      var data;
       socket.onmessage = function(event) {
-        var data = JSON.parse(event.data);
+        data = JSON.parse(event.data);
         console.log(data);
 
         var content = ""
         var i
         for (i = 0; i < data.message.length; i++) {
-          content = content + data.message[i].name + " | " + data.message[i].email + "<br>" + "<hr>"
+          content = content + '<div class="shadow-lg p-3 mb-5 bg-white rounded">' + data.message[i].name + " | " + data.message[i].email + '<br><br><button style="margin-right: 7px; border-radius: 0;" type="button" class="btn btn-outline-success" onClick="accept_click()" id=' + i.toString() + '>Accept</button>' + '<button  style="margin-left: 7px; border-radius: 0;" type="button" class="btn btn-outline-success" onClick="directions_click()" id=' +  i.toString() + '>Get Directions</button>' + "</div>"
         }
 
         document.querySelector('#dashboard').innerHTML = content;
 
       }
+      socket.onclose = function(){
+        console.log('closed!');
+        //reconnect now
+      }
+
+      function accept_click()
+      {
+          // event.target is the element that is clicked (button in this case).
+          console.log(event.target.id);
+          console.log(data.message[parseInt(event.target.id)].name);
+          console.log(data.message[parseInt(event.target.id)].email);
+      }
+
+      function directions_click()
+      {
+          // event.target is the element that is clicked (button in this case).
+          console.log(event.target.id);
+          console.log(data.message[parseInt(event.target.id)].name);
+          console.log(data.message[parseInt(event.target.id)].email);
+
+
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+          } else {
+              alert("Geolocation is not supported by this browser.");
+          }
+
+          function showPosition(position) {
+            document.getElementById('m_lat').value = position.coords.latitude;
+            document.getElementById('m_lon').value = position.coords.longitude;
+            document.getElementById('c_lat').value = '11.004556';
+            document.getElementById('c_lon').value = '76.961632';
+
+            document.getElementById("direction_form").submit();
+
+          }
+
+      }
+
+      function check_for_googlemaps() {
+
+        if('{{maps_url}}' != 'None') {
+          window.open(`{{maps_url|safe}}`);
+        }
+
+      }
 
     </script>
+
+
   </body>
 </html>
